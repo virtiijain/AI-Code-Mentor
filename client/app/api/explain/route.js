@@ -28,7 +28,7 @@ export async function POST(req) {
 
     return NextResponse.json({ explanation: text });
   } catch (err) {
-    console.error("🔥 API ERROR:", err);
+    console.error("API ERROR:", err);
     return NextResponse.json({
       explanation: `Error processing request: ${err.message || err}`,
     });

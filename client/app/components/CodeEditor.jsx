@@ -1,6 +1,9 @@
 "use client";
 
-import { ChevronDown, Circle, Square, Triangle } from "lucide-react";
+import { ChevronDown, Circle } from "lucide-react";
+import CodeMirror from "@uiw/react-codemirror";
+import { tokyoNight } from "@uiw/codemirror-theme-tokyo-night";
+import { javascript } from "@codemirror/lang-javascript";
 
 export default function CodeEditor({ code, setCode }) {
   return (
@@ -15,12 +18,22 @@ export default function CodeEditor({ code, setCode }) {
         <ChevronDown className="w-4 h-4 text-gray-500 cursor-pointer" />
       </div>
 
-      <textarea
-        value={code}
-        onChange={(e) => setCode(e.target.value)}
-        placeholder="// Paste your code here..."
-        className="bg-[#0f0f11] border border-[#2a2a2a] rounded-b-lg p-4 h-80 text-sm text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-600 resize-none shadow-inner"
-      />
+      <div className="border border-[#2a2a2a] rounded-b-lg overflow-hidden bg-[#0f0f11]">
+        <CodeMirror
+          value={code}
+          height="320px"
+          theme={tokyoNight}
+          extensions={[javascript()]}
+          onChange={(value) => setCode(value)}
+          basicSetup={{
+            lineNumbers: true,
+            foldGutter: true,
+            highlightActiveLineGutter: true,
+            highlightActiveLine: true,
+          }}
+          className="text-sm"
+        />
+      </div>
     </div>
   );
 }
