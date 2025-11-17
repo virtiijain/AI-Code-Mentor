@@ -16,7 +16,7 @@ export async function POST(req) {
     const completion = await groq.chat.completions.create({
       model: "llama-3.1-8b-instant",
       stream: false,
-      temperature: 0.3,
+      temperature: 0.2,
       messages: [
         { role: "system", content: "You explain code clearly and simply." },
         { role: "user", content: `Explain this code:\n\n${code}` },
@@ -34,3 +34,4 @@ export async function POST(req) {
     });
   }
 }
+

@@ -1,8 +1,8 @@
 "use client";
 
-import { Upload, History, FileCode, X } from "lucide-react";
+import { Upload, History, Sparkles, X } from "lucide-react";
 
-export default function SideBar({ isOpen, onClose }) {
+export default function SideBar({ isOpen, onClose, onModeChange }) {
   const item =
     "flex items-center gap-3 px-4 py-3 rounded-md hover:bg-[#1a1a1d] cursor-pointer transition";
 
@@ -14,9 +14,9 @@ export default function SideBar({ isOpen, onClose }) {
           Workspace
         </h2>
 
-        <div className={item}>
-          <FileCode className="w-5 h-5 text-indigo-400" />
-          <span className="text-sm text-gray-200">Examples</span>
+        <div className={item} onClick={() => onModeChange("optimize")}>
+          <Sparkles className="w-5 h-5 text-indigo-400" />
+          <span className="text-sm text-gray-200">Optimizer Mode</span>
         </div>
 
         <div className={item}>
@@ -46,7 +46,7 @@ export default function SideBar({ isOpen, onClose }) {
       >
         <div className="flex justify-between items-center px-4 py-4 border-b border-[#262626]">
           <h2 className="text-[11px] text-gray-500 tracking-wider uppercase">
-           Workspace
+            Workspace
           </h2>
 
           <button onClick={onClose}>
@@ -55,9 +55,9 @@ export default function SideBar({ isOpen, onClose }) {
         </div>
 
         <div className="flex flex-col py-4">
-          <div className={item}>
-            <FileCode className="w-5 h-5 text-indigo-400" />
-            <span className="text-sm text-gray-200">Examples</span>
+          <div className={item} onClick={() => onModeChange("optimize")}>
+            <Sparkles className="w-5 h-5 text-indigo-400" />
+            <span className="text-sm text-gray-200">Optimizer Mode</span>
           </div>
 
           <div className={item}>

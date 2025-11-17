@@ -13,6 +13,7 @@ export default function Home() {
   const [isEditorOpen, setIsEditorOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [mode, setMode] = useState("explain");
 
   const handleExplain = async () => {
     if (!code) return;
@@ -34,6 +35,30 @@ export default function Home() {
     } catch (error) {
       console.error(error);
       setOutput("Something went wrong. Please try again.");
+    }
+
+    setLoading(false);
+  };
+
+  const handleOptimize = async () => {
+    if (!code) return;
+
+    setLoading(true);
+    setOutput("");
+    setError("");
+
+    try {
+      const res = await fetch("/api/optimize", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code }),
+      });
+
+      const data = await res.json();
+      setOutput(data.optimized || "No optimized result returned.");
+    } catch (error) {
+      console.error(error);
+      setOutput("Something went wrong while optimizing.");
     }
 
     setLoading(false);
@@ -80,15 +105,20 @@ export default function Home() {
             <SideBar
               isOpen={sidebarOpen}
               onClose={() => setSidebarOpen(false)}
+              onModeChange={(val) => setMode(val)}
             />
             <div className="flex-1 p-6 overflow-y-auto bg-[#0d0d0f]">
               <CodeEditor code={code} setCode={setCode} />
               <button
-                onClick={handleExplain}
+                onClick={mode === "explain" ? handleExplain : handleOptimize}
                 disabled={loading}
                 className="mt-4 bg-indigo-600 hover:bg-indigo-700 px-6 py-2 rounded-md text-sm font-medium transition"
               >
-                {loading ? "Generating..." : "Explain Code"}
+                {loading
+                  ? "Generating..."
+                  : mode === "explain"
+                  ? "Explain Code"
+                  : "Optimize Code"}
               </button>
               {error && <p className="text-red-500 mt-2">{error}</p>}
               <OutputBox output={output} />
