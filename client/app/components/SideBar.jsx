@@ -1,6 +1,6 @@
 "use client";
 
-import { Upload, History, Sparkles, X, Bug } from "lucide-react";
+import { Upload, Sparkles, X, Bug, Lightbulb } from "lucide-react";
 
 export default function SideBar({ isOpen, onClose, onModeChange }) {
   const item =
@@ -24,14 +24,14 @@ export default function SideBar({ isOpen, onClose, onModeChange }) {
           <span className="text-sm text-gray-200">Bug Detector</span>
         </div>
 
-        <div className={item}>
-          <Upload className="w-5 h-5 text-indigo-400" />
-          <span className="text-sm text-gray-200">Upload Code</span>
+        <div className={item} onClick={() => onModeChange("flowchart")}>
+          <Lightbulb className="w-5 h-5 text-indigo-400" />
+          <span className="text-sm text-gray-200">Flowchart Mode</span>
         </div>
 
-        <div className={item}>
-          <History className="w-5 h-5 text-indigo-400" />
-          <span className="text-sm text-gray-200">History</span>
+        <div className={item} onClick={() => onModeChange("testcase")}>
+          <Upload className="w-5 h-5 text-indigo-400" />
+          <span className="text-sm text-gray-200">Generate Test Cases</span>
         </div>
       </div>
 
@@ -70,14 +70,14 @@ export default function SideBar({ isOpen, onClose, onModeChange }) {
             <span className="text-sm text-gray-200">Bug Detector</span>
           </div>
 
-          <div className={item}>
-            <Upload className="w-5 h-5 text-indigo-400" />
-            <span className="text-sm text-gray-200">Upload Code</span>
+          <div className={item} onClick={() => onModeChange("flowchart")}>
+            <Lightbulb className="w-5 h-5 text-indigo-400" />
+            <span className="text-sm text-gray-200">Flowchart Mode</span>
           </div>
 
-          <div className={item}>
-            <History className="w-5 h-5 text-indigo-400" />
-            <span className="text-sm text-gray-200">History</span>
+          <div className={item} onClick={() => onModeChange("testcase")}>
+            <Upload className="w-5 h-5 text-indigo-400" />
+            <span className="text-sm text-gray-200">Generate Test Cases</span>
           </div>
         </div>
       </div>

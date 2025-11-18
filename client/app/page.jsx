@@ -88,6 +88,54 @@ export default function Home() {
     setLoading(false);
   };
 
+  const handleFlowchart = async () => {
+    if (!code) return;
+
+    setLoading(true);
+    setOutput("");
+    setError("");
+
+    try {
+      const res = await fetch("/api/flowchart", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code }),
+      });
+
+      const data = await res.json();
+      setOutput(data.flowchart || "No flowchart generated.");
+    } catch (err) {
+      console.error(err);
+      setOutput("Error generating flowchart.");
+    }
+
+    setLoading(false);
+  };
+
+  const handleTestCases = async () => {
+    if (!code) return;
+
+    setLoading(true);
+    setOutput("");
+    setError("");
+
+    try {
+      const res = await fetch("/api/testcase", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code }),
+      });
+
+      const data = await res.json();
+      setOutput(data.testcases?.join("\n") || "No test cases generated.");
+    } catch (err) {
+      console.error(err);
+      setOutput("Error generating test cases.");
+    }
+
+    setLoading(false);
+  };
+
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       {!isEditorOpen ? (
@@ -139,7 +187,11 @@ export default function Home() {
                     ? handleExplain
                     : mode === "optimize"
                     ? handleOptimize
-                    : handleBugDetect
+                    : mode === "bug"
+                    ? handleBugDetect
+                    : mode === "flowchart"
+                    ? handleFlowchart
+                    : handleTestCases
                 }
                 disabled={loading}
                 className="mt-4 bg-indigo-600 hover:bg-indigo-700 px-6 py-2 rounded-md text-sm font-medium transition"
@@ -150,8 +202,13 @@ export default function Home() {
                   ? "Explain Code"
                   : mode === "optimize"
                   ? "Optimize Code"
-                  : "Detect Bugs"}
+                  : mode === "bug"
+                  ? "Detect Bugs"
+                  : mode === "flowchart"
+                  ? "Generate Flowchart"
+                  : "Generate Test Cases"}
               </button>
+
               {error && <p className="text-red-500 mt-2">{error}</p>}
               <OutputBox output={output} />
             </div>

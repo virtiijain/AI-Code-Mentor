@@ -3,33 +3,42 @@
 import { Terminal, Copy } from "lucide-react";
 import { useEffect, useState } from "react";
 import { highlightCode } from "../lib/shiki";
+import mermaid from "mermaid";
 
 export default function OutputBox({ output }) {
   const [formattedBlocks, setFormattedBlocks] = useState([]);
   const [copied, setCopied] = useState(false);
 
-  // toggle copy
+  // copy to clipboard
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 1200);
   };
 
-  // detect code blocks
+  // sanitize mermaid content to avoid parse errors
+  const sanitizeMermaid = (str) => str.replace(/"/g, "'");
+
+  // extract code and text blocks
   const extractBlocks = (text) => {
     const lines = text.split("\n");
     const blocks = [];
-
     let currentCode = [];
     let inCode = false;
+    let codeType = "javascript";
 
     lines.forEach((line) => {
       if (line.trim().startsWith("```")) {
         if (inCode) {
-          blocks.push({ type: "code", content: currentCode.join("\n") });
+          blocks.push({
+            type: "code",
+            content: currentCode.join("\n"),
+            lang: codeType,
+          });
           currentCode = [];
         }
         inCode = !inCode;
+        codeType = line.replace(/```/g, "").trim() || "javascript";
       } else {
         if (inCode) currentCode.push(line);
         else blocks.push({ type: "text", content: line });
@@ -39,7 +48,7 @@ export default function OutputBox({ output }) {
     return blocks;
   };
 
-  // highlight code blocks using shiki
+  // format blocks
   useEffect(() => {
     const format = async () => {
       if (!output) return setFormattedBlocks([]);
@@ -47,10 +56,14 @@ export default function OutputBox({ output }) {
       const rawBlocks = extractBlocks(output);
 
       const final = await Promise.all(
-        rawBlocks.map(async (blk) => {
+        rawBlocks.map(async (blk, i) => {
           if (blk.type === "code") {
-            const html = await highlightCode(blk.content, "javascript");
-            return { ...blk, highlighted: html };
+            if (blk.lang === "mermaid") {
+              return { ...blk, id: `mermaid-${i}` };
+            } else {
+              const html = await highlightCode(blk.content, blk.lang);
+              return { ...blk, highlighted: html };
+            }
           }
           return blk;
         })
@@ -61,6 +74,24 @@ export default function OutputBox({ output }) {
 
     format();
   }, [output]);
+
+  // render mermaid diagrams after blocks change
+  useEffect(() => {
+    formattedBlocks.forEach((blk) => {
+      if (blk.lang === "mermaid") {
+        const el = document.getElementById(blk.id);
+        if (el) {
+          el.innerHTML = sanitizeMermaid(blk.content);
+          try {
+            mermaid.init(undefined, el);
+          } catch (err) {
+            el.innerHTML = "⚠️ Mermaid parse error";
+            console.error(err);
+          }
+        }
+      }
+    });
+  }, [formattedBlocks]);
 
   return (
     <div className="flex flex-col w-full mt-6">
@@ -76,21 +107,22 @@ export default function OutputBox({ output }) {
           </p>
         )}
 
-        {formattedBlocks.map((block, i) =>
-          block.type === "text" ? (
-            <p key={i} className="mb-2">{block.content}</p>
+        {formattedBlocks.map((blk, i) =>
+          blk.type === "text" ? (
+            <p key={i} className="mb-2">{blk.content}</p>
+          ) : blk.lang === "mermaid" ? (
+            <div key={i} id={blk.id} className="mermaid mb-4" />
           ) : (
             <div key={i} className="relative mb-4">
               <button
-                onClick={() => copyToClipboard(block.content)}
+                onClick={() => copyToClipboard(blk.content)}
                 className="absolute top-2 right-2 text-gray-400 hover:text-indigo-400 transition z-10"
               >
                 <Copy className="w-4 h-4" />
               </button>
-
               <div
                 className="overflow-x-auto rounded-lg border border-[#2a2a30]"
-                dangerouslySetInnerHTML={{ __html: block.highlighted }}
+                dangerouslySetInnerHTML={{ __html: blk.highlighted }}
               />
             </div>
           )
@@ -98,7 +130,7 @@ export default function OutputBox({ output }) {
 
         {output && (
           <div className="mt-3 p-2 bg-[#1b1b24] rounded text-xs text-gray-400 border border-[#26262a]">
-            💡 Tip: Highlighting powered by Shiki — dev vibes max.
+            💡 Tip: Highlighting powered by Shiki & Mermaid — dev vibes max.
           </div>
         )}
       </div>
