@@ -64,6 +64,30 @@ export default function Home() {
     setLoading(false);
   };
 
+  const handleBugDetect = async () => {
+    if (!code) return;
+
+    setLoading(true);
+    setOutput("");
+    setError("");
+
+    try {
+      const res = await fetch("/api/bug", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code }),
+      });
+
+      const data = await res.json();
+      setOutput(data.bugs || "No bugs detected.");
+    } catch (err) {
+      console.error(err);
+      setOutput("Error detecting bugs.");
+    }
+
+    setLoading(false);
+  };
+
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       {!isEditorOpen ? (
@@ -110,7 +134,13 @@ export default function Home() {
             <div className="flex-1 p-6 overflow-y-auto bg-[#0d0d0f]">
               <CodeEditor code={code} setCode={setCode} />
               <button
-                onClick={mode === "explain" ? handleExplain : handleOptimize}
+                onClick={
+                  mode === "explain"
+                    ? handleExplain
+                    : mode === "optimize"
+                    ? handleOptimize
+                    : handleBugDetect
+                }
                 disabled={loading}
                 className="mt-4 bg-indigo-600 hover:bg-indigo-700 px-6 py-2 rounded-md text-sm font-medium transition"
               >
@@ -118,7 +148,9 @@ export default function Home() {
                   ? "Generating..."
                   : mode === "explain"
                   ? "Explain Code"
-                  : "Optimize Code"}
+                  : mode === "optimize"
+                  ? "Optimize Code"
+                  : "Detect Bugs"}
               </button>
               {error && <p className="text-red-500 mt-2">{error}</p>}
               <OutputBox output={output} />

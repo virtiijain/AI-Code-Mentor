@@ -1,6 +1,6 @@
 "use client";
 
-import { Upload, History, Sparkles, X } from "lucide-react";
+import { Upload, History, Sparkles, X, Bug } from "lucide-react";
 
 export default function SideBar({ isOpen, onClose, onModeChange }) {
   const item =
@@ -17,6 +17,11 @@ export default function SideBar({ isOpen, onClose, onModeChange }) {
         <div className={item} onClick={() => onModeChange("optimize")}>
           <Sparkles className="w-5 h-5 text-indigo-400" />
           <span className="text-sm text-gray-200">Optimizer Mode</span>
+        </div>
+
+        <div className={item} onClick={() => onModeChange("bug")}>
+          <Bug className="w-5 h-5 text-indigo-400" />{" "}
+          <span className="text-sm text-gray-200">Bug Detector</span>
         </div>
 
         <div className={item}>
@@ -58,6 +63,11 @@ export default function SideBar({ isOpen, onClose, onModeChange }) {
           <div className={item} onClick={() => onModeChange("optimize")}>
             <Sparkles className="w-5 h-5 text-indigo-400" />
             <span className="text-sm text-gray-200">Optimizer Mode</span>
+          </div>
+
+          <div className={item} onClick={() => onModeChange("bug")}>
+            <Bug className="w-5 h-5 text-indigo-400" />{" "}
+            <span className="text-sm text-gray-200">Bug Detector</span>
           </div>
 
           <div className={item}>
