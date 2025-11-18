@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import TopBar from "./components/TopBar";
 import SideBar from "./components/SideBar";
 import CodeEditor from "./components/CodeEditor";
@@ -14,6 +14,22 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [mode, setMode] = useState("explain");
+  const [hovering, setHovering] = useState(false);
+  const btnRef = useRef(null);
+  const arrowRef = useRef(null);
+
+  useEffect(() => {
+    const arrow = arrowRef.current;
+    if (!arrow) return;
+
+    let direction = 1;
+    const interval = setInterval(() => {
+      arrow.style.transform = `translateY(${direction * 5}px)`;
+      direction *= -1;
+    }, 500);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const handleExplain = async () => {
     if (!code) return;
@@ -112,62 +128,61 @@ export default function Home() {
     setLoading(false);
   };
 
-  const handleTestCases = async () => {
-    if (!code) return;
-
-    setLoading(true);
-    setOutput("");
-    setError("");
-
-    try {
-      const res = await fetch("/api/testcase", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code }),
-      });
-
-      const data = await res.json();
-      setOutput(data.testcases?.join("\n") || "No test cases generated.");
-    } catch (err) {
-      console.error(err);
-      setOutput("Error generating test cases.");
-    }
-
-    setLoading(false);
-  };
-
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       {!isEditorOpen ? (
-        <div className="flex flex-col items-center px-6 py-12 min-h-screen">
-          <header className="text-center max-w-3xl mb-12">
-            <h1 className="text-5xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400 mb-4">
-              Explain your code instantly
+        <div
+          className="min-h-screen w-full flex flex-col items-center justify-between 
+  px-4 sm:px-6 py-6 bg-gradient-to-b from-[#0d0d10] to-[#12121a] overflow-hidden"
+        >
+          <header className="text-center max-w-xl sm:max-w-2xl px-2">
+            <h1
+              className="text-2xl md:text-4xl lg:text-5xl font-bold text-transparent bg-clip-text 
+      bg-gradient-to-r from-[#7AE2CF] to-[#F5EEDD] leading-tight"
+            >
+              Decode your code smarter, faster & crystal clear.
             </h1>
-            <p className="text-gray-400 text-lg md:text-xl mb-6">
-              Paste a snippet below and see how AI explains it in real-time.
+            <p className="text-gray-400 text-sm sm:text-base md:text-lg mt-2">
+              Paste your snippet and let the AI do its thing.
             </p>
             <button
               onClick={() => setIsEditorOpen(true)}
-              className="bg-indigo-600 hover:bg-indigo-700 px-8 py-3 rounded-lg font-medium transition shadow-lg"
+              className="mt-4 px-6 sm:px-8 py-2 rounded-lg 
+      bg-[#7AE2CF] text-black
+      hover:opacity-90 transition font-semibold 
+      shadow-[0_0_20px_rgba(122,226,207,0.35)] 
+      tracking-wider uppercase text-xs sm:text-sm"
             >
-              Try it Now
+              Start now
             </button>
           </header>
-
-          <div className="w-full max-w-4xl bg-[#1b1b25] rounded-xl shadow-lg p-6 flex flex-col md:flex-row gap-6">
-            <div className="flex-1 flex flex-col">
-              <div className="bg-[#0f0f11] border border-[#2a2a2a] rounded-lg p-4 flex-1">
+          <div className="flex-1 w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 items-center mt-6 sm:mt-10">
+            <div
+              className="bg-[#0e0e14] border border-[#7AE2CF]/20 rounded-xl p-3 sm:p-4 
+      h-60 sm:h-72 md:h-80 shadow-[inset_0_0_20px_rgba(0,0,0,0.5)] flex flex-col"
+            >
+              <h3 className="text-xs sm:text-sm text-[#7AE2CF] mb-2 tracking-wide">
+                Code Input
+              </h3>
+              <div className="flex-1 overflow-hidden rounded-lg">
                 <CodeEditor code={code} setCode={setCode} />
               </div>
             </div>
-            <div className="flex-1 bg-[#0f0f11] border border-[#2a2a2a] rounded-lg p-4 h-full overflow-y-auto shadow-inner">
-              <OutputBox output={output} />
+            <div
+              className="bg-[#0e0e14] border border-[#7AE2CF]/20 rounded-xl p-3 sm:p-4 
+      h-60 sm:h-72 md:h-80 shadow-[inset_0_0_20px_rgba(0,0,0,0.5)] flex flex-col"
+            >
+              <h3 className="text-xs sm:text-sm text-[#F5EEDD] mb-2 tracking-wide">
+                AI Output
+              </h3>
+
+              <div className="flex-1 overflow-auto rounded-lg">
+                <OutputBox output={output} />
+              </div>
             </div>
           </div>
-
-          <footer className="mt-12 text-gray-500 text-sm">
-            Made with 💜 by AI Code Mentor
+          <footer className="text-[#7AE2CF] text-[10px] sm:text-xs tracking-wide opacity-70 mt-6">
+            Thanks for stopping by — see you out there!
           </footer>
         </div>
       ) : (
@@ -189,9 +204,7 @@ export default function Home() {
                     ? handleOptimize
                     : mode === "bug"
                     ? handleBugDetect
-                    : mode === "flowchart"
-                    ? handleFlowchart
-                    : handleTestCases
+                    : handleFlowchart
                 }
                 disabled={loading}
                 className="mt-4 bg-indigo-600 hover:bg-indigo-700 px-6 py-2 rounded-md text-sm font-medium transition"
@@ -204,9 +217,7 @@ export default function Home() {
                   ? "Optimize Code"
                   : mode === "bug"
                   ? "Detect Bugs"
-                  : mode === "flowchart"
-                  ? "Generate Flowchart"
-                  : "Generate Test Cases"}
+                  : "Generate Flowchart"}
               </button>
 
               {error && <p className="text-red-500 mt-2">{error}</p>}

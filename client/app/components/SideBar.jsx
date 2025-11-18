@@ -28,11 +28,6 @@ export default function SideBar({ isOpen, onClose, onModeChange }) {
           <Lightbulb className="w-5 h-5 text-indigo-400" />
           <span className="text-sm text-gray-200">Flowchart Mode</span>
         </div>
-
-        <div className={item} onClick={() => onModeChange("testcase")}>
-          <Upload className="w-5 h-5 text-indigo-400" />
-          <span className="text-sm text-gray-200">Generate Test Cases</span>
-        </div>
       </div>
 
       {/* ------------------ MOBILE BACKDROP ------------------ */}
@@ -73,11 +68,6 @@ export default function SideBar({ isOpen, onClose, onModeChange }) {
           <div className={item} onClick={() => onModeChange("flowchart")}>
             <Lightbulb className="w-5 h-5 text-indigo-400" />
             <span className="text-sm text-gray-200">Flowchart Mode</span>
-          </div>
-
-          <div className={item} onClick={() => onModeChange("testcase")}>
-            <Upload className="w-5 h-5 text-indigo-400" />
-            <span className="text-sm text-gray-200">Generate Test Cases</span>
           </div>
         </div>
       </div>

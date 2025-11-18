@@ -5,6 +5,7 @@ import ts from "shiki/langs/typescript.mjs";
 import html from "shiki/langs/html.mjs";
 import css from "shiki/langs/css.mjs";
 import json from "shiki/langs/json.mjs";
+import jsx from "shiki/langs/jsx.mjs";  
 
 import theme from "shiki/themes/tokyo-night.mjs";
 
@@ -14,7 +15,7 @@ export async function highlightCode(code, lang = "javascript") {
   if (!highlighter) {
     highlighter = await createHighlighterCore({
       themes: [theme],
-      langs: [js, ts, html, css, json],
+      langs: [js, ts, html, css, json, jsx], 
       engine: createJavaScriptRegexEngine(),
     });
   }

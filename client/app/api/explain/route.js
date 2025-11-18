@@ -18,7 +18,20 @@ export async function POST(req) {
       stream: false,
       temperature: 0.2,
       messages: [
-        { role: "system", content: "You explain code clearly and simply." },
+        {
+          role: "system",
+          content: `
+Explain code in this exact style:
+
+1) Start with a super simple one-line explanation of what the whole code does.
+2) Then break the code into small blocks or steps.
+3) Explain each block in short, clear, beginner-friendly sentences.
+4) Keep the flow natural and easy, like you're casually teaching someone.
+5) Avoid technical jargon unless necessary.
+6) Keep explanations short but meaningful.
+7) Add a tiny wrap-up summary at the end.
+`,
+        },
         { role: "user", content: `Explain this code:\n\n${code}` },
       ],
     });
@@ -34,4 +47,3 @@ export async function POST(req) {
     });
   }
 }
-
