@@ -1,4 +1,4 @@
-# ⚡ AI Code Mentor  
+# AI Code Mentor  
 ### Explain & Optimize Code Instantly with AI
 
 AI Code Mentor intelligently analyzes any code you provide, breaks down its logic, highlights potential inefficiencies, and generates a cleaner, faster, and more maintainable optimized version—ensuring developers understand their code better while improving its overall quality.
