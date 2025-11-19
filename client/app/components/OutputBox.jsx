@@ -92,13 +92,13 @@ export default function OutputBox({ output }) {
     <div className="flex flex-col w-full mt-6">
       <div className="flex items-center gap-2 px-3 pb-2 text-gray-400 text-xs font-semibold uppercase tracking-wide">
         <Terminal className="w-4 h-4 text-[#C9CDCF]" />
-        <span>AI Explanation</span>
+        <span>Decoded by AI</span>
       </div>
 
       <div className="relative bg-[#0F0F0F] border border-[#26262a] rounded-lg p-4 h-64 overflow-y-auto text-sm leading-relaxed text-gray-300 shadow-md scrollbar-thin scrollbar-thumb-indigo-600 scrollbar-track-gray-900">
         {!output && (
           <p className="text-gray-500 italic">
-            Your AI-generated explanation will appear here...
+            Paste some code above and click a mode to see results.
           </p>
         )}
 
