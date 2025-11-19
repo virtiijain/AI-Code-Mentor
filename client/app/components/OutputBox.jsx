@@ -9,17 +9,14 @@ export default function OutputBox({ output }) {
   const [formattedBlocks, setFormattedBlocks] = useState([]);
   const [copied, setCopied] = useState(false);
 
-  // copy to clipboard
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 1200);
   };
 
-  // sanitize mermaid content to avoid parse errors
   const sanitizeMermaid = (str) => str.replace(/"/g, "'");
 
-  // extract code and text blocks
   const extractBlocks = (text) => {
     const lines = text.split("\n");
     const blocks = [];
@@ -48,7 +45,6 @@ export default function OutputBox({ output }) {
     return blocks;
   };
 
-  // format blocks
   useEffect(() => {
     const format = async () => {
       if (!output) return setFormattedBlocks([]);
@@ -75,7 +71,6 @@ export default function OutputBox({ output }) {
     format();
   }, [output]);
 
-  // render mermaid diagrams after blocks change
   useEffect(() => {
     formattedBlocks.forEach((blk) => {
       if (blk.lang === "mermaid") {
@@ -96,11 +91,11 @@ export default function OutputBox({ output }) {
   return (
     <div className="flex flex-col w-full mt-6">
       <div className="flex items-center gap-2 px-3 pb-2 text-gray-400 text-xs font-semibold uppercase tracking-wide">
-        <Terminal className="w-4 h-4 text-indigo-400" />
+        <Terminal className="w-4 h-4 text-[#C9CDCF]" />
         <span>AI Explanation</span>
       </div>
 
-      <div className="relative bg-[#111118] border border-[#26262a] rounded-lg p-4 h-64 overflow-y-auto text-sm leading-relaxed text-gray-300 shadow-md scrollbar-thin scrollbar-thumb-indigo-600 scrollbar-track-gray-900">
+      <div className="relative bg-[#0F0F0F] border border-[#26262a] rounded-lg p-4 h-64 overflow-y-auto text-sm leading-relaxed text-gray-300 shadow-md scrollbar-thin scrollbar-thumb-indigo-600 scrollbar-track-gray-900">
         {!output && (
           <p className="text-gray-500 italic">
             Your AI-generated explanation will appear here...
@@ -109,7 +104,9 @@ export default function OutputBox({ output }) {
 
         {formattedBlocks.map((blk, i) =>
           blk.type === "text" ? (
-            <p key={i} className="mb-2">{blk.content}</p>
+            <p key={i} className="mb-2">
+              {blk.content}
+            </p>
           ) : blk.lang === "mermaid" ? (
             <div key={i} id={blk.id} className="mermaid mb-4" />
           ) : (
