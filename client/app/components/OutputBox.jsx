@@ -1,19 +1,13 @@
 "use client";
 
-import { Terminal, Copy } from "lucide-react";
+import { Terminal, Volume2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { highlightCode } from "../lib/shiki";
 import mermaid from "mermaid";
 
 export default function OutputBox({ output }) {
   const [formattedBlocks, setFormattedBlocks] = useState([]);
-  const [copied, setCopied] = useState(false);
-
-  const copyToClipboard = (text) => {
-    navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1200);
-  };
+  const [isSpeaking, setIsSpeaking] = useState(false);
 
   const sanitizeMermaid = (str) => str.replace(/"/g, "'");
 
@@ -37,8 +31,13 @@ export default function OutputBox({ output }) {
         inCode = !inCode;
         codeType = line.replace(/```/g, "").trim() || "javascript";
       } else {
-        if (inCode) currentCode.push(line);
-        else blocks.push({ type: "text", content: line });
+        if (inCode) {
+          currentCode.push(line);
+        } else {
+          if (line.trim() !== "") {
+            blocks.push({ type: "text", content: line });
+          }
+        }
       }
     });
 
@@ -46,12 +45,14 @@ export default function OutputBox({ output }) {
   };
 
   useEffect(() => {
-    const format = async () => {
-      if (!output) return setFormattedBlocks([]);
+    const formatBlocks = async () => {
+      if (!output) {
+        setFormattedBlocks([]);
+        return;
+      }
 
       const rawBlocks = extractBlocks(output);
-
-      const final = await Promise.all(
+      const formatted = await Promise.all(
         rawBlocks.map(async (blk, i) => {
           if (blk.type === "code") {
             if (blk.lang === "mermaid") {
@@ -65,34 +66,67 @@ export default function OutputBox({ output }) {
         })
       );
 
-      setFormattedBlocks(final);
+      setFormattedBlocks(formatted);
     };
 
-    format();
+    formatBlocks();
   }, [output]);
 
   useEffect(() => {
-    formattedBlocks.forEach((blk) => {
+    formattedBlocks.forEach((blk, i) => {
       if (blk.lang === "mermaid") {
-        const el = document.getElementById(blk.id);
+        const el = document.getElementById(`mermaid-${i}`);
         if (el) {
           el.innerHTML = sanitizeMermaid(blk.content);
           try {
             mermaid.init(undefined, el);
           } catch (err) {
             el.innerHTML = "⚠️ Mermaid parse error";
-            console.error(err);
           }
         }
       }
     });
   }, [formattedBlocks]);
 
+  const toggleSpeak = () => {
+    if (isSpeaking) {
+      speechSynthesis.cancel();
+      setIsSpeaking(false);
+    } else {
+      const textToSpeak = formattedBlocks
+        .filter((blk) => blk.type === "text")
+        .map((blk) => blk.content)
+        .join(". ");
+
+      if (!textToSpeak) return;
+
+      const utterance = new SpeechSynthesisUtterance(textToSpeak);
+      utterance.rate = 1;
+      utterance.pitch = 1;
+      utterance.onend = () => setIsSpeaking(false);
+
+      speechSynthesis.speak(utterance);
+      setIsSpeaking(true);
+    }
+  };
+
   return (
     <div className="flex flex-col w-full mt-6">
-      <div className="flex items-center gap-2 px-3 pb-2 text-gray-400 text-xs font-semibold uppercase tracking-wide">
-        <Terminal className="w-4 h-4 text-[#C9CDCF]" />
-        <span>Decoded by AI</span>
+      <div className="flex items-center justify-between px-3 pb-2 text-gray-400 text-xs font-semibold uppercase tracking-wide">
+        <div className="flex items-center gap-2">
+          <Terminal className="w-4 h-4 text-[#C9CDCF]" />
+          <span>Decoded by AI</span>
+        </div>
+
+        {formattedBlocks.some((blk) => blk.type === "text") && (
+          <button
+            onClick={toggleSpeak}
+            className="flex items-center gap-1 text-gray-400 hover:text-white text-sm font-medium"
+          >
+            <Volume2 className="w-4 h-4" />
+            {isSpeaking ? "Stop Listening" : "Listen"}
+          </button>
+        )}
       </div>
 
       <div className="relative bg-[#0F0F0F] border border-[#26262a] rounded-lg p-4 h-64 overflow-y-auto text-sm leading-relaxed text-gray-300 shadow-md scrollbar-thin scrollbar-thumb-indigo-600 scrollbar-track-gray-900">
@@ -102,34 +136,25 @@ export default function OutputBox({ output }) {
           </p>
         )}
 
-        {formattedBlocks.map((blk, i) =>
-          blk.type === "text" ? (
-            <p key={i} className="mb-2">
-              {blk.content}
-            </p>
-          ) : blk.lang === "mermaid" ? (
-            <div key={i} id={blk.id} className="mermaid mb-4" />
-          ) : (
-            <div key={i} className="relative mb-4">
-              <button
-                onClick={() => copyToClipboard(blk.content)}
-                className="absolute top-2 right-2 text-gray-400 hover:text-indigo-400 transition z-10"
-              >
-                <Copy className="w-4 h-4" />
-              </button>
+        {formattedBlocks.map((blk, i) => {
+          if (blk.type === "text") {
+            return (
+              <p key={i} className="mb-2">
+                {blk.content}
+              </p>
+            );
+          } else if (blk.lang === "mermaid") {
+            return <div key={i} id={`mermaid-${i}`} className="mermaid mb-4" />;
+          } else {
+            return (
               <div
-                className="overflow-x-auto rounded-lg border border-[#2a2a30]"
+                key={i}
+                className="overflow-x-auto rounded-lg border border-[#2a2a30] mb-4 p-2 bg-[#1a1a1f]"
                 dangerouslySetInnerHTML={{ __html: blk.highlighted }}
               />
-            </div>
-          )
-        )}
-
-        {output && (
-          <div className="mt-3 p-2 bg-[#1b1b24] rounded text-xs text-gray-400 border border-[#26262a]">
-            💡 Tip: Highlighting powered by Shiki & Mermaid — dev vibes max.
-          </div>
-        )}
+            );
+          }
+        })}
       </div>
     </div>
   );
