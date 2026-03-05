@@ -24,7 +24,7 @@ export const LandingPage = ({ code, setCode, output, setIsEditorOpen }) => (
         </h1>
         <p className="text-gray-400 text-sm lg:text-base mt-3">
           Paste your snippet and let the AI do its thing. click{" "}
-          <span className="text-white font-medium animate-pulse uppercase">
+          <span className="text-emerald-400 font-medium animate-pulse uppercase">
             Start now
           </span>{" "}
           to begin!
